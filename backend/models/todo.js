@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 let Todo = new Schema({
     title: {
-        type:String
+        type: String
     },
     description: {
         type: String
