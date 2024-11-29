@@ -1,15 +1,17 @@
-name: Build and push docker image
+name: Build and push docker images
 
 on:
   push:
     paths:
       - 'backend/**'
+      - 'frontend/**' # Incluye archivos del frontend
     branches:
       - develop
       - master
   pull_request:
     paths:
       - 'backend/**'
+      - 'frontend/**' # Incluye archivos del frontend
     branches:
       - develop
       - master
@@ -32,18 +34,38 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract version
-        id: version
-        run: echo "VERSION=$(jq -r .version < backend/package.json)" >> $GITHUB_ENV
+      # Extracción de versiones
+      - name: Extract backend version
+        id: backend_version
+        run: echo "BACKEND_VERSION=$(jq -r .version < backend/package.json)" >> $GITHUB_ENV
 
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.VERSION }} backend/
+      - name: Extract frontend version
+        id: frontend_version
+        run: echo "FRONTEND_VERSION=$(jq -r .version < frontend/package.json)" >> $GITHUB_ENV
 
-      - name: Push Docker image
+      # Build y Push Backend
+      - name: Build Backend Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.VERSION }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.BACKEND_VERSION }} backend/
 
-      - name: Pull Docker image
+      - name: Push Backend Docker image
         run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.VERSION }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.BACKEND_VERSION }}
+
+      # Build y Push Frontend
+      - name: Build Frontend Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:v${{ env.FRONTEND_VERSION }} frontend/
+
+      - name: Push Frontend Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/frontend:v${{ env.FRONTEND_VERSION }}
+
+      # Pull para confirmar
+      - name: Pull Backend Docker image
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/backend:v${{ env.BACKEND_VERSION }}
+
+      - name: Pull Frontend Docker image
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:v${{ env.FRONTEND_VERSION }}
