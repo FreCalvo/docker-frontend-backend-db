@@ -20,8 +20,10 @@ jobs:
   # Job para Backend
   build-and-push-backend:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.paths, 'backend/') || contains(github.event.push.paths, 'backend/')
     steps:
+      - name: Debug GitHub Context
+        run: echo ${{ toJson(github) }}
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -53,8 +55,10 @@ jobs:
   # Job para Frontend
   build-and-push-frontend:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.paths, 'frontend/') || contains(github.event.push.paths, 'frontend/')
     steps:
+      - name: Debug GitHub Context
+        run: echo ${{ toJson(github) }}
+        
       - name: Checkout code
         uses: actions/checkout@v3
 
